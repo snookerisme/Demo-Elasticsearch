@@ -4,6 +4,7 @@ import com.demo.elasticsearch.model.Employee;
 import com.demo.elasticsearch.request.DeleteById;
 import com.demo.elasticsearch.request.FindAllRequest;
 import com.demo.elasticsearch.request.FindByIdRequest;
+import com.demo.elasticsearch.request.FindManyFieldRequest;
 import com.demo.elasticsearch.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,5 +39,10 @@ public class EmployeeController {
     @PostMapping("/delete")
     public Mono<String> deleteEmployeeById(@RequestBody DeleteById request){
         return employeeService.deleteEmployeeById(request.getId());
+    }
+
+    @PostMapping("/findManyField")
+    public Flux<Employee> findManyFieldEmployee(@RequestBody FindManyFieldRequest request){
+        return employeeService.findManyFieldEmployee(request.getValue());
     }
 }

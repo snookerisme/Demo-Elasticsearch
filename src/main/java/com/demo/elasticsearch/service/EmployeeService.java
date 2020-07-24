@@ -4,6 +4,7 @@ import com.demo.elasticsearch.model.Employee;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsea
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.IndexBoost;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -18,6 +21,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static com.demo.elasticsearch.constant.ApplicationConstants.*;
@@ -121,4 +126,22 @@ public class EmployeeService {
         ).doOnError(throwable -> logger.error(throwable.getMessage(), throwable));
     }
 
+    public Flux<Employee> findManyFieldEmployee(String value){
+
+        NativeSearchQueryBuilder query = new NativeSearchQueryBuilder();
+
+        if (!StringUtils.isEmpty(value)) {
+
+            query.withQuery(QueryBuilders.multiMatchQuery(value,"firstName","lastName"));
+        }
+
+        return reactiveElasticsearchOperations.search(
+                query.build(),
+                Employee.class,
+                IndexCoordinates.of(EMPLOYEE_ES_INDEX)
+        )
+                .map(SearchHit::getContent)
+                .filter(Objects::nonNull)
+                .doOnError(throwable -> logger.error(throwable.getMessage(), throwable));
+    }
 }
