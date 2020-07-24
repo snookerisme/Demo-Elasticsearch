@@ -5,5 +5,6 @@ public final class ApplicationConstants {
     private ApplicationConstants(){}
 
     public static final String MYMODEL_ES_INDEX = "my_model";
+    public static final String EMPLOYEE_ES_INDEX = "employee";
     public static final String DEFAULT_ES_DOC_TYPE = "_doc";
 }
